@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity() , OnProductListener{
         configAuth()
         configRecyclerView()
         configFirestore()
+        configButtons()
     }
 
     private fun configAuth(){
@@ -67,6 +68,7 @@ class MainActivity : AppCompatActivity() , OnProductListener{
                 supportActionBar?.title = auth.currentUser?.displayName
                 binding.nsvProducts.visibility = View.VISIBLE
                 binding.llProgress.visibility = View.GONE
+                binding.efab.show()
             }else{
                 val providers = arrayListOf(//son los proveedores
                     AuthUI.IdpConfig.EmailBuilder().build(), //email
@@ -124,6 +126,7 @@ class MainActivity : AppCompatActivity() , OnProductListener{
                         if (it.isSuccessful){//si es exitoso la vista se quitara
                             binding.nsvProducts.visibility = View.GONE
                             binding.llProgress.visibility = View.VISIBLE
+                            binding.efab.hide()
                         }else{
                             Toast.makeText(this,"No se pudo cerrar la sesión.",Toast.LENGTH_SHORT).show()
                         }
@@ -147,6 +150,12 @@ class MainActivity : AppCompatActivity() , OnProductListener{
             .addOnFailureListener {
                 Toast.makeText(this,"Error al consultar datos.",Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun configButtons(){ //instanciar los botones de AddDialogFragment
+        binding.efab.setOnClickListener {
+            AddDialogFragment().show(supportFragmentManager, AddDialogFragment::class.java.simpleName)
+        }
     }
 
     override fun onClick(product: Product) {

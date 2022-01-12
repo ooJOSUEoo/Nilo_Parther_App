@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nilopartner.databinding.ItemProductBinding
-//despues esta
+//despues esta (2)
 class ProductAdapter(private val productList: MutableList<Product>,
                      private val listener: OnProductListener) :
     RecyclerView.Adapter<ProductAdapter.ViewHolder>() { //adaptador de producto
