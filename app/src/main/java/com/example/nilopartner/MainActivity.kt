@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity() , OnProductListener{
     private fun configFirestore(){
         val db = FirebaseFirestore.getInstance() //hace referencia a la base de datos
 
-        db.collection("products") //se llama a la tabla products
+        db.collection(getString(R.string.name_db_instance)) //se llama a la tabla products
             .get()
             .addOnSuccessListener { snapshots -> //si fue exitoso la llamada a la db
                 for (document in snapshots){ //extrae cada objeto y lo combierte a producto
