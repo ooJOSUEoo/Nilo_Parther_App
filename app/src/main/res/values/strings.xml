@@ -2,4 +2,8 @@
     <string name="app_name">Nilo Partner</string>
     <string name="product_create">Crear</string>
     <string name="product_msg_loading">Preparando todo...</string>
+    <string name="hint_name">Nombre del producto</string>
+    <string name="hint_description">Descripción</string>
+    <string name="hint_quantity">Cantidad</string>
+    <string name="hint_price">Precio</string>
 </resources>
