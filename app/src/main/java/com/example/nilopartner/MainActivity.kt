@@ -50,9 +50,11 @@ class MainActivity : AppCompatActivity() {
                 supportActionBar?.title = auth.currentUser?.displayName
                 binding.tvInit.visibility = View.VISIBLE
             }else{
-                val providers = arrayListOf(AuthUI.IdpConfig.EmailBuilder().build()) //son los email de la Auth
+                val providers = arrayListOf(//son los proveedores
+                    AuthUI.IdpConfig.EmailBuilder().build(), //email
+                    AuthUI.IdpConfig.GoogleBuilder().build())  //google
 
-                resultLauncher.launch(AuthUI.getInstance()
+                resultLauncher.launch(AuthUI.getInstance() //hace la instancia
                     .createSignInIntentBuilder()
                     .setAvailableProviders(providers)
                     .build())
