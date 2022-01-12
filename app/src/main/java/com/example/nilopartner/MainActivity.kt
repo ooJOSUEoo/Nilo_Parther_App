@@ -13,6 +13,7 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() , OnProductListener{
 
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() , OnProductListener{
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
 
-    private lateinit var adapter: ProductAdapter
+    private lateinit var adapter: ProductAdapter //la clase para crud
 
     private val resultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()){
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity() , OnProductListener{
 
         configAuth()
         configRecyclerView()
+        configFirestore()
     }
 
     private fun configAuth(){
@@ -98,11 +100,11 @@ class MainActivity : AppCompatActivity() , OnProductListener{
             adapter = this@MainActivity.adapter
         }
 
-        (1 .. 20).forEach {
+        /*(1 .. 20).forEach {
             val product = Product(it.toString(),"Producto $it",
                 "Este producto es el $it","",it,it * 1.1)
             adapter.add(product)
-        }
+        }*/
 
     }
 
@@ -129,6 +131,22 @@ class MainActivity : AppCompatActivity() , OnProductListener{
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun configFirestore(){
+        val db = FirebaseFirestore.getInstance() //hace referencia a la base de datos
+
+        db.collection("products") //se llama a la tabla products
+            .get()
+            .addOnSuccessListener { snapshots -> //si fue exitoso la llamada a la db
+                for (document in snapshots){ //extrae cada objeto y lo combierte a producto
+                    val product = document.toObject(Product::class.java)
+                    adapter.add(product)
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this,"Error al consultar datos.",Toast.LENGTH_SHORT).show()
+            }
     }
 
     override fun onClick(product: Product) {

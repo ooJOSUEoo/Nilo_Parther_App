@@ -2,10 +2,10 @@ package com.example.nilopartner
 
 //primero se hace esta
 data class Product( //clase para el modelo de datos de los producto
-        var id: String?, //id
-        var name: String?, //nombre
-        var description: String?, //descripcion
-        var imgUrl: String?, //url de img
+        var id: String? = null, //id
+        var name: String? = null, //nombre
+        var description: String? = null, //descripcion
+        var imgUrl: String? = null, //url de img
         var quantity: Int = 0, // cantidad
         var price: Double = 0.0){ //precio
 
