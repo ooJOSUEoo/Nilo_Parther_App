@@ -7,18 +7,21 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.nilopartner.databinding.ActivityMainBinding
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() , OnProductListener{
 
     private lateinit var binding: ActivityMainBinding //llamar a binding
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+
+    private lateinit var adapter: ProductAdapter
 
     private val resultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()){
@@ -52,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         configAuth()
+        configRecyclerView()
     }
 
     private fun configAuth(){
@@ -59,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         authStateListener = FirebaseAuth.AuthStateListener { auth ->
             if (auth.currentUser != null){ //saber si el usuario ya esta logeado
                 supportActionBar?.title = auth.currentUser?.displayName
-                binding.tvInit.visibility = View.VISIBLE
+                binding.nsvProducts.visibility = View.VISIBLE
                 binding.llProgress.visibility = View.GONE
             }else{
                 val providers = arrayListOf(//son los proveedores
@@ -86,6 +90,22 @@ class MainActivity : AppCompatActivity() {
         firebaseAuth.removeAuthStateListener(authStateListener)
     }
 
+    private fun configRecyclerView(){
+        adapter = ProductAdapter(mutableListOf(),this)
+        binding.recyclerView.apply {
+            layoutManager = GridLayoutManager(this@MainActivity,3,
+                GridLayoutManager.HORIZONTAL,false)
+            adapter = this@MainActivity.adapter
+        }
+
+        (1 .. 20).forEach {
+            val product = Product(it.toString(),"Producto $it",
+                "Este producto es el $it","",it,it * 1.1)
+            adapter.add(product)
+        }
+
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main,menu)
         return super.onCreateOptionsMenu(menu)
@@ -100,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     .addOnCompleteListener {
                         if (it.isSuccessful){//si es exitoso la vista se quitara
-                            binding.tvInit.visibility = View.GONE
+                            binding.nsvProducts.visibility = View.GONE
                             binding.llProgress.visibility = View.VISIBLE
                         }else{
                             Toast.makeText(this,"No se pudo cerrar la sesión.",Toast.LENGTH_SHORT).show()
@@ -109,5 +129,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onClick(product: Product) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onLongClick(product: Product) {
+        TODO("Not yet implemented")
     }
 }
