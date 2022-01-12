@@ -37,7 +37,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Preparando todo..."/>
+            android:text="Preparando todo..."
+            android:textColor="@color/colorAcent"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

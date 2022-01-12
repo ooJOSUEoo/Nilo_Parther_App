@@ -20,7 +20,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
 
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+    private val resultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()){
         val response = IdpResponse.fromResultIntent(it.data)
 
         if (it.resultCode == RESULT_OK){ //ver si existe un usuario Autenticado
