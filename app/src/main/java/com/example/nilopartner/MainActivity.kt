@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.nilopartner.databinding.ActivityMainBinding
 import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 
@@ -25,12 +26,21 @@ class MainActivity : AppCompatActivity() {
         if (it.resultCode == RESULT_OK){ //ver si existe un usuario Autenticado
             val user = FirebaseAuth.getInstance().currentUser //variable para el user Auth
             if (user != null){
-                Toast.makeText(this,"Bienvenido",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Bienvenido.",Toast.LENGTH_SHORT).show()
             }
         }else{
             if (response == null) { //el usuario al pulsado hacia atras
-                Toast.makeText(this,"Hasta pronto",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Hasta pronto.",Toast.LENGTH_SHORT).show()
                 finish() //cierra la app
+            }else{
+                response.error?.let { //si un error no es nulo hara...
+                    if (it.errorCode == ErrorCodes.NO_NETWORK) {//no hay red
+                        Toast.makeText(this,"Sin red.",Toast.LENGTH_SHORT).show()
+                    }else{
+                        Toast.makeText(this,"Codigo del error: ${it.errorCode}",
+                            Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
@@ -49,14 +59,17 @@ class MainActivity : AppCompatActivity() {
             if (auth.currentUser != null){ //saber si el usuario ya esta logeado
                 supportActionBar?.title = auth.currentUser?.displayName
                 binding.tvInit.visibility = View.VISIBLE
+                binding.llProgress.visibility = View.GONE
             }else{
                 val providers = arrayListOf(//son los proveedores
                     AuthUI.IdpConfig.EmailBuilder().build(), //email
                     AuthUI.IdpConfig.GoogleBuilder().build())  //google
 
-                resultLauncher.launch(AuthUI.getInstance() //hace la instancia
+                resultLauncher.launch( //hace la instancia donde se agregan a los proveedores
+                    AuthUI.getInstance()
                     .createSignInIntentBuilder()
                     .setAvailableProviders(providers)
+                        .setIsSmartLockEnabled(false)//automaticamente te envia a la seccion de login si esta en true
                     .build())
             }
         }
@@ -87,6 +100,7 @@ class MainActivity : AppCompatActivity() {
                     .addOnCompleteListener {
                         if (it.isSuccessful){//si es exitoso la vista se quitara
                             binding.tvInit.visibility = View.GONE
+                            binding.llProgress.visibility = View.VISIBLE
                         }else{
                             Toast.makeText(this,"No se pudo cerrar la sesión.",Toast.LENGTH_SHORT).show()
                         }
