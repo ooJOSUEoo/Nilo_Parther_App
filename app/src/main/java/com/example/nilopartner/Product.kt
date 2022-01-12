@@ -1,6 +1,6 @@
 package com.example.nilopartner
 
-
+//primero se hace esta
 data class Product( //clase para el modelo de datos de los producto
         var id: String?, //id
         var name: String?, //nombre
