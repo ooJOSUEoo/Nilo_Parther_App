@@ -13,7 +13,10 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() , OnProductListener{
 
@@ -23,6 +26,8 @@ class MainActivity : AppCompatActivity() , OnProductListener{
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
 
     private lateinit var adapter: ProductAdapter //la clase para crud
+
+    private lateinit var firestoreListener: ListenerRegistration
 
     private val resultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()){
@@ -57,7 +62,8 @@ class MainActivity : AppCompatActivity() , OnProductListener{
 
         configAuth()
         configRecyclerView()
-        configFirestore()
+        //configFirestore()//llama a los datos solo una ves
+        configFirestoreRealtime()
         configButtons()
     }
 
@@ -94,7 +100,7 @@ class MainActivity : AppCompatActivity() , OnProductListener{
         firebaseAuth.removeAuthStateListener(authStateListener)
     }
 
-    private fun configRecyclerView(){
+    private fun configRecyclerView(){ //muestra los productos
         adapter = ProductAdapter(mutableListOf(),this)
         binding.recyclerView.apply {
             layoutManager = GridLayoutManager(this@MainActivity,3,
@@ -151,6 +157,28 @@ class MainActivity : AppCompatActivity() , OnProductListener{
             .addOnFailureListener {
                 Toast.makeText(this,"Error al consultar datos.",Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun configFirestoreRealtime(){
+        val db = FirebaseFirestore.getInstance()
+        val productRef = db.collection(getString(R.string.name_db_instance))
+
+        firestoreListener = productRef.addSnapshotListener{ snapshots, error ->
+            if (error != null){ //si hay un error...
+                Toast.makeText(this,"Error al consultar datos.",Toast.LENGTH_SHORT).show()
+                return@addSnapshotListener
+            }
+
+            for (snapshot in snapshots!!.documentChanges){
+                val product = snapshot.document.toObject(Product::class.java)
+                product.id = snapshot.document.id //el id del producto sera el mismo que el documento
+                when(snapshot.type){
+                    DocumentChange.Type.ADDED -> adapter.add(product) //añade y se muestra el resultado en tiempo real
+                    DocumentChange.Type.MODIFIED -> adapter.update(product) //lo mismo pero en actualizar
+                    DocumentChange.Type.REMOVED -> adapter.delete(product) //""""
+                }
+            }
+        }
     }
 
     private fun configButtons(){ //instanciar los botones de AddDialogFragment
