@@ -50,6 +50,8 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
 
             positiveButton?.setOnClickListener {
                 binding?.let {
+                    enableUI(false)
+
                     if (product == null) { //dialogo de crear
                         val product = Product(
                             name = it.etName.text.toString().trim(), //trim elimina espacios al inicio o final
@@ -91,7 +93,7 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
 
     private fun save(product: Product){ //envia los datos a la db
         val db = FirebaseFirestore.getInstance() //instancia de la db
-        db.collection(getString(R.string.name_db_instance))
+        db.collection(Constants.COLL_PRODUCTS)
             .add(product)//se añade el producto
             .addOnSuccessListener {
                 Toast.makeText(activity,"Producto añadido.",Toast.LENGTH_SHORT).show()
@@ -100,6 +102,7 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                 Toast.makeText(activity,"Error al insertar.",Toast.LENGTH_SHORT).show()
             }
             .addOnCompleteListener {
+                enableUI(true)
                 dismiss()
             }
     }
@@ -107,7 +110,7 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
         val db = FirebaseFirestore.getInstance() //instancia de la db
 
         product.id?.let { id ->
-            db.collection(getString(R.string.name_db_instance))
+            db.collection(Constants.COLL_PRODUCTS)
                 .document(id)
                 .set(product)// se edita el producto
                 .addOnSuccessListener {
@@ -117,10 +120,23 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                     Toast.makeText(activity,"Error al actualizar.",Toast.LENGTH_SHORT).show()
                 }
                 .addOnCompleteListener {
+                    enableUI(true)
                     dismiss()
                 }
         }
+    }
 
+    private fun enableUI(enable: Boolean){ //desabilita los editText para ya no crear mas de un producto
+        positiveButton?.isEnabled = enable
+        negativeButton?.isEnabled = enable
+        binding?.let {
+            with(it){
+                etName.isEnabled = enable
+                etDescription.isEnabled = enable
+                etQuantity.isEnabled = enable
+                etPrice.isEnabled = enable
+            }
+        }
     }
 
     override fun onDestroyView() {

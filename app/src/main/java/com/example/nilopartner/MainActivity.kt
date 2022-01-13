@@ -149,7 +149,7 @@ class MainActivity : AppCompatActivity() , OnProductListener, MainAux{
     private fun configFirestore(){
         val db = FirebaseFirestore.getInstance() //hace referencia a la base de datos
 
-        db.collection(getString(R.string.name_db_instance)) //se llama a la tabla products
+        db.collection(Constants.COLL_PRODUCTS) //se llama a la tabla products
             .get()
             .addOnSuccessListener { snapshots -> //si fue exitoso la llamada a la db
                 for (document in snapshots){ //extrae cada objeto y lo combierte a producto
@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() , OnProductListener, MainAux{
 
     private fun configFirestoreRealtime(){
         val db = FirebaseFirestore.getInstance()
-        val productRef = db.collection(getString(R.string.name_db_instance))
+        val productRef = db.collection(Constants.COLL_PRODUCTS)
 
         firestoreListener = productRef.addSnapshotListener{ snapshots, error ->
             if (error != null){ //si hay un error...
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() , OnProductListener, MainAux{
 
     override fun onLongClick(product: Product) { //cuando se mantenga precionado un producto...
         val db = FirebaseFirestore.getInstance()
-        val productRef = db.collection(getString(R.string.name_db_instance))
+        val productRef = db.collection(Constants.COLL_PRODUCTS)
         product.id?.let { id ->
             productRef.document(id)
                 .delete() //se borrar el producto
