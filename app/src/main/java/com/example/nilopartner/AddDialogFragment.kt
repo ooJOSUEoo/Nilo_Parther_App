@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.Toast
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.example.nilopartner.databinding.FragmentDialogAddBinding
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 //(4)
 class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
@@ -68,6 +70,8 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                 binding?.let {
                     enableUI(false)
 
+                    uploadImage()
+
                     if (product == null) { //dialogo de crear
                         val product = Product(
                             name = it.etName.text.toString().trim(), //trim elimina espacios al inicio o final
@@ -118,6 +122,21 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
     private fun openGallery() { //abrir galeria
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         resultLauncher.launch(intent)
+    }
+
+    private fun uploadImage(){ //cargar la img a firebase storage
+        val storageRef = FirebaseStorage.getInstance().reference.child("image")
+
+        photoSelectedUri?.let { uri ->
+            binding?.let { binding ->
+                storageRef.putFile(uri) //subir img
+                    .addOnSuccessListener {
+                        it.storage.downloadUrl.addOnSuccessListener { dowloadUri -> //cuando este lista la url...
+                            Log.i("URL",dowloadUri.toString())
+                        }
+                    }
+            }
+        }
     }
 
     private fun save(product: Product){ //envia los datos a la db
