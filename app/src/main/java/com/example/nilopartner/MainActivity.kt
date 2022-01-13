@@ -144,6 +144,7 @@ class MainActivity : AppCompatActivity() , OnProductListener{
             .addOnSuccessListener { snapshots -> //si fue exitoso la llamada a la db
                 for (document in snapshots){ //extrae cada objeto y lo combierte a producto
                     val product = document.toObject(Product::class.java)
+                    product.id = document.id //el id del producto sera el mismo que el documento
                     adapter.add(product)
                 }
             }

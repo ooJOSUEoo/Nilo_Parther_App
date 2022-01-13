@@ -36,8 +36,26 @@ class ProductAdapter(private val productList: MutableList<Product>,
 
     fun add(product: Product){//añadir y visualizar los elementos de forma local
         if (!productList.contains(product)){//si el listado actual no contiene el producto, lo agrega
-            productList.add(product)
+            productList.add(product) //add es añadir
             notifyItemInserted(productList.size - 1)//se añade al final
+        }else{ //si existe el producto lo actualiza
+            update(product)
+        }
+    }
+
+    fun update(product: Product){//actualiza el producto
+        val index = productList.indexOf(product) // es el id
+        if (index != -1){//se actualiza
+            productList.set(index,product) //set es actualizar
+            notifyItemChanged(index)//se añade al final
+        }
+    }
+
+    fun delete(product: Product){//elimina el producto
+        val index = productList.indexOf(product) // es el id
+        if (index != -1){//se actualiza
+            productList.removeAt(index)//removeAt es eliminar
+            notifyItemRemoved(index)//se añade al final
         }
     }
 
