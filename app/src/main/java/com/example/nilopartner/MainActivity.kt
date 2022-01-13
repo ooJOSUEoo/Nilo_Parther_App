@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() , OnProductListener{
         configAuth()
         configRecyclerView()
         //configFirestore()//llama a los datos solo una ves
-        configFirestoreRealtime()
+        //configFirestoreRealtime()
         configButtons()
     }
 
@@ -93,11 +93,13 @@ class MainActivity : AppCompatActivity() , OnProductListener{
     override fun onResume() {
         super.onResume()
         firebaseAuth.addAuthStateListener(authStateListener)
+        configFirestoreRealtime()
     }
 
     override fun onPause() {
         super.onPause()
         firebaseAuth.removeAuthStateListener(authStateListener)
+        firestoreListener.remove()
     }
 
     private fun configRecyclerView(){ //muestra los productos
@@ -191,7 +193,13 @@ class MainActivity : AppCompatActivity() , OnProductListener{
         TODO("Not yet implemented")
     }
 
-    override fun onLongClick(product: Product) {
-        TODO("Not yet implemented")
+    override fun onLongClick(product: Product) { //cuando se mantenga precionado un producto...
+        val db = FirebaseFirestore.getInstance()
+        val productRef = db.collection(getString(R.string.name_db_instance))
+        product.id?.let { id ->
+            productRef.document(id)
+                .delete() //se borrar el producto
+                .addOnFailureListener { Toast.makeText(this,"Error al eliminar.",Toast.LENGTH_SHORT).show() }
+        }
     }
 }
