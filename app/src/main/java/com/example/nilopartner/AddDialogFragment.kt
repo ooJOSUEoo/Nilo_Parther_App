@@ -1,11 +1,16 @@
 package com.example.nilopartner
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.example.nilopartner.databinding.FragmentDialogAddBinding
@@ -19,6 +24,16 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
     private var negativeButton: Button? = null
 
     private var product: Product? = null
+
+    private var photoSelectedUri: Uri? = null
+
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ //carga img a la imgView
+        if (it.resultCode == Activity.RESULT_OK){
+            photoSelectedUri = it.data?.data
+
+            binding?.imgProductPreview?.setImageURI(photoSelectedUri)
+        }
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         activity?.let { activity -> //si la actividad no es nula...
@@ -42,6 +57,7 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
 
     override fun onShow(dialogInterface: DialogInterface?) { //dialogo de crear y editar
         initProduct()
+        configButtons()
 
         val dialog = dialog as? AlertDialog
         dialog?.let { //si dialog no es nulo...
@@ -89,6 +105,19 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                 it.etPrice.setText(product.price.toString())
             }
         }
+    }
+
+    private fun configButtons(){
+        binding?.let {
+            it.ibProduct.setOnClickListener { //cuando hay click en el imgButton abrira la galeria
+                openGallery()
+            }
+        }
+    }
+
+    private fun openGallery() { //abrir galeria
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        resultLauncher.launch(intent)
     }
 
     private fun save(product: Product){ //envia los datos a la db
