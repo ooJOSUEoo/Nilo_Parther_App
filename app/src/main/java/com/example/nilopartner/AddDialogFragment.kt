@@ -18,6 +18,8 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
     private var positiveButton: Button? = null //boton positivo
     private var negativeButton: Button? = null
 
+    private var product: Product? = null
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         activity?.let { activity -> //si la actividad no es nula...
             binding = FragmentDialogAddBinding.inflate(LayoutInflater.from(context)) //esto es igual al xml de fragment_dialog_add
@@ -39,6 +41,8 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
     }
 
     override fun onShow(dialogInterface: DialogInterface?) {
+        initProduct()
+
         val dialog = dialog as? AlertDialog
         dialog?.let { //si dialog no es nulo...
             positiveButton = it.getButton(Dialog.BUTTON_POSITIVE)
@@ -56,6 +60,18 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
             }
             negativeButton?.setOnClickListener {
                 dismiss() //desaparece el cuadro de dialogo
+            }
+        }
+    }
+
+    private fun initProduct() {
+        product = (activity as? MainAux)?.getProductSelected()
+        product?.let { product ->// se le añade datos al cuadro
+            binding?.let {
+                it.etName.setText(product.name)
+                it.etDescription.setText(product.description)
+                it.etQuantity.setText(product.quantity.toString())
+                it.etPrice.setText(product.price.toString())
             }
         }
     }

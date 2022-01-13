@@ -18,7 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.ktx.Firebase
 
-class MainActivity : AppCompatActivity() , OnProductListener{
+class MainActivity : AppCompatActivity() , OnProductListener, MainAux{
 
     private lateinit var binding: ActivityMainBinding //llamar a binding
 
@@ -28,6 +28,8 @@ class MainActivity : AppCompatActivity() , OnProductListener{
     private lateinit var adapter: ProductAdapter //la clase para crud
 
     private lateinit var firestoreListener: ListenerRegistration
+
+    private var productSelected: Product? = null
 
     private val resultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()){
@@ -183,14 +185,17 @@ class MainActivity : AppCompatActivity() , OnProductListener{
         }
     }
 
-    private fun configButtons(){ //instanciar los botones de AddDialogFragment
+    private fun configButtons(){ //instanciar los botones de AddDialogFragment (hace el cuadro para crear)
         binding.efab.setOnClickListener {
+            productSelected = null
             AddDialogFragment().show(supportFragmentManager, AddDialogFragment::class.java.simpleName)
         }
     }
 
-    override fun onClick(product: Product) {
-        TODO("Not yet implemented")
+    override fun onClick(product: Product) {//se hace el cuadro de dialogo para editar
+
+        productSelected = product
+        AddDialogFragment().show(supportFragmentManager, AddDialogFragment::class.java.simpleName)
     }
 
     override fun onLongClick(product: Product) { //cuando se mantenga precionado un producto...
@@ -202,4 +207,6 @@ class MainActivity : AppCompatActivity() , OnProductListener{
                 .addOnFailureListener { Toast.makeText(this,"Error al eliminar.",Toast.LENGTH_SHORT).show() }
         }
     }
+
+    override fun getProductSelected(): Product? = productSelected
 }
