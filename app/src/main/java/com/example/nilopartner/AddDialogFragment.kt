@@ -125,11 +125,15 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
     }
 
     private fun uploadImage(){ //cargar la img a firebase storage
-        val storageRef = FirebaseStorage.getInstance().reference.child("image")
+        val eventPost = EventPost()
+        eventPost.documentId = FirebaseFirestore.getInstance().collection(Constants.COLL_PRODUCTS)
+            .document().id //id del documento
+        val storageRef = FirebaseStorage.getInstance().reference.child(Constants.PATH_PRODUCT_IMGES)
 
         photoSelectedUri?.let { uri ->
             binding?.let { binding ->
-                storageRef.putFile(uri) //subir img
+                val photoRef = storageRef.child(eventPost.documentId!!) //le da el nombre del documento a la img
+                photoRef.putFile(uri) //subir img
                     .addOnSuccessListener {
                         it.storage.downloadUrl.addOnSuccessListener { dowloadUri -> //cuando este lista la url...
                             Log.i("URL",dowloadUri.toString())
