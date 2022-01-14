@@ -15,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.example.nilopartner.databinding.FragmentDialogAddBinding
+import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
@@ -70,25 +71,28 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                 binding?.let {
                     enableUI(false)
 
-                    uploadImage()
+                    uploadImage(){eventPost ->
+                        if (eventPost.isSuccess){
+                            if (product == null) { //dialogo de crear
+                                val product = Product(
+                                    name = it.etName.text.toString().trim(), //trim elimina espacios al inicio o final
+                                    description = it.etDescription.text.toString().trim(),
+                                    imgUrl = eventPost.photoUrl, //le asigna la url del evento
+                                    quantity = it.etQuantity.text.toString().toInt(),
+                                    price = it.etPrice.text.toString().toDouble()
+                                ) //se crea variable con todos los datos que se enviaron
 
-                    if (product == null) { //dialogo de crear
-                        val product = Product(
-                            name = it.etName.text.toString().trim(), //trim elimina espacios al inicio o final
-                            description = it.etDescription.text.toString().trim(),
-                            quantity = it.etQuantity.text.toString().toInt(),
-                            price = it.etPrice.text.toString().toDouble()
-                        ) //se crea variable con todos los datos que se enviaron
+                                save(product,eventPost.documentId!!) //llamar la funcion para guardar los datos, crear el producto y le pone de id a la img el id del documento
+                            }else{
+                                product?.apply {
+                                    name = it.etName.text.toString().trim()
+                                    description = it.etDescription.text.toString().trim()
+                                    quantity = it.etQuantity.text.toString().toInt()
+                                    price = it.etPrice.text.toString().toDouble()
 
-                        save(product) //llamar la funcion para guardar los datos y crear el producto
-                    }else{
-                        product?.apply {
-                            name = it.etName.text.toString().trim()
-                            description = it.etDescription.text.toString().trim()
-                            quantity = it.etQuantity.text.toString().toInt()
-                            price = it.etPrice.text.toString().toDouble()
-
-                            update(this) //se llama la funcion para guardar y editar el producto
+                                    update(this) //se llama la funcion para guardar y editar el producto
+                                }
+                            }
                         }
                     }
                 }
@@ -124,7 +128,7 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
         resultLauncher.launch(intent)
     }
 
-    private fun uploadImage(){ //cargar la img a firebase storage
+    private fun uploadImage(callback: (EventPost)->Unit){ //cargar la img a firebase storage
         val eventPost = EventPost()
         eventPost.documentId = FirebaseFirestore.getInstance().collection(Constants.COLL_PRODUCTS)
             .document().id //id del documento
@@ -136,17 +140,26 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                 photoRef.putFile(uri) //subir img
                     .addOnSuccessListener {
                         it.storage.downloadUrl.addOnSuccessListener { dowloadUri -> //cuando este lista la url...
-                            Log.i("URL",dowloadUri.toString())
+                            Log.i("URL",dowloadUri.toString()) //pone en la terminal la url de la img
+                            eventPost.isSuccess = true
+                            eventPost.photoUrl = dowloadUri.toString()
+                            callback(eventPost)
                         }
+                    }
+                    .addOnFailureListener{
+                        eventPost.isSuccess = false
+                        callback(eventPost)
                     }
             }
         }
     }
 
-    private fun save(product: Product){ //envia los datos a la db
+    private fun save(product: Product,documentId: String){ //envia los datos a la db
         val db = FirebaseFirestore.getInstance() //instancia de la db
         db.collection(Constants.COLL_PRODUCTS)
-            .add(product)//se añade el producto
+            .document(documentId)
+            .set(product)
+            //.add(product)//se añade el producto
             .addOnSuccessListener {
                 Toast.makeText(activity,"Producto añadido.",Toast.LENGTH_SHORT).show()
             }
