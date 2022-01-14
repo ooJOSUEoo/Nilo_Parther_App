@@ -80,7 +80,7 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                 binding?.let {
                     enableUI(false)
 
-                    uploadImage(){eventPost ->
+                    uploadImage(product?.id){eventPost ->
                         if (eventPost.isSuccess){
                             if (product == null) { //dialogo de crear
                                 val product = Product(
@@ -96,6 +96,7 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                                 product?.apply {
                                     name = it.etName.text.toString().trim()
                                     description = it.etDescription.text.toString().trim()
+                                    imgUrl = eventPost.photoUrl
                                     quantity = it.etQuantity.text.toString().toInt()
                                     price = it.etPrice.text.toString().toDouble()
 
@@ -143,9 +144,9 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
         resultLauncher.launch(intent)
     }
 
-    private fun uploadImage(callback: (EventPost)->Unit){ //cargar la img a firebase storage
+    private fun uploadImage(productId: String?,callback: (EventPost)->Unit){ //cargar la img a firebase storage
         val eventPost = EventPost()
-        eventPost.documentId = FirebaseFirestore.getInstance().collection(Constants.COLL_PRODUCTS)
+        eventPost.documentId = productId?: /*este es para actualizar */ FirebaseFirestore.getInstance().collection(Constants.COLL_PRODUCTS) //este para crear
             .document().id //id del documento
         val storageRef = FirebaseStorage.getInstance().reference.child(Constants.PATH_PRODUCT_IMGES)
 
