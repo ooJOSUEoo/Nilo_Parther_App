@@ -14,6 +14,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.nilopartner.databinding.FragmentDialogAddBinding
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.FirebaseFirestore
@@ -34,7 +36,14 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
         if (it.resultCode == Activity.RESULT_OK){
             photoSelectedUri = it.data?.data
 
-            binding?.imgProductPreview?.setImageURI(photoSelectedUri)
+            //binding?.imgProductPreview?.setImageURI(photoSelectedUri) //poner la img seleccionada de la galeria en el cuadro de dialogo
+            binding?.let {
+                Glide.with(this) //carga la img en el cuadro de dialogo
+                    .load(photoSelectedUri) //ubicacion de la img
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) //guarda el cache de la img
+                    .centerCrop() //se visualiza bien
+                    .into(it.imgProductPreview) //donde se va a ver
+            }
         }
     }
 
@@ -111,6 +120,12 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                 it.etDescription.setText(product.description)
                 it.etQuantity.setText(product.quantity.toString())
                 it.etPrice.setText(product.price.toString())
+
+                Glide.with(this) //carga la img en el cuadro de dialogo
+                    .load(product.imgUrl) //ubicacion de la img
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) //guarda el cache de la img
+                    .centerCrop() //se visualiza bien
+                    .into(it.imgProductPreview) //donde se va a ver
             }
         }
     }

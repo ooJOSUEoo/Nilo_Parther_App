@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.nilopartner.databinding.ItemProductBinding
 //despues esta (2)
 class ProductAdapter(private val productList: MutableList<Product>,
@@ -29,6 +31,12 @@ class ProductAdapter(private val productList: MutableList<Product>,
         layoutRoot.tvName.text = product.name //el text de tvName sera igual al de product.name
         layoutRoot.tvPrice.text = product.price.toString()//tiene toString por que es un double
         layoutRoot.tvQuantity.text = product.quantity.toString()
+
+        Glide.with(context) //carga la img
+            .load(product.imgUrl) //ubicacion de la img
+            .diskCacheStrategy(DiskCacheStrategy.ALL) //guarda el cache de la img
+            .centerCrop() //se visualiza bien
+            .into(layoutRoot.imgProduct) //donde se va a ver
 
     }
 
