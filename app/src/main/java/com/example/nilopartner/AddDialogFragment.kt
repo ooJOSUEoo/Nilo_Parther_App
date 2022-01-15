@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -152,8 +153,18 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
 
         photoSelectedUri?.let { uri ->
             binding?.let { binding ->
+                binding.progressBar.visibility = View.VISIBLE
+
                 val photoRef = storageRef.child(eventPost.documentId!!) //le da el nombre del documento a la img
+
                 photoRef.putFile(uri) //subir img
+                    .addOnProgressListener {
+                        val progress = (100 * it.bytesTransferred / it.totalByteCount).toInt() //porcentage de carga
+                        it.run {
+                            binding.progressBar.progress = progress
+                            binding.tvProgress.setText(String.format("%s%%",progress))
+                        }
+                    }
                     .addOnSuccessListener {
                         it.storage.downloadUrl.addOnSuccessListener { dowloadUri -> //cuando este lista la url...
                             Log.i("URL",dowloadUri.toString()) //pone en la terminal la url de la img
@@ -184,6 +195,7 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
             }
             .addOnCompleteListener {
                 enableUI(true)
+                binding?.progressBar?.visibility = View.INVISIBLE
                 dismiss()
             }
     }
@@ -202,6 +214,7 @@ class AddDialogFragment : DialogFragment(),DialogInterface.OnShowListener {
                 }
                 .addOnCompleteListener {
                     enableUI(true)
+                    binding?.progressBar?.visibility = View.INVISIBLE
                     dismiss()
                 }
         }
