@@ -35,6 +35,8 @@ class ProductAdapter(private val productList: MutableList<Product>,
         Glide.with(context) //carga la img
             .load(product.imgUrl) //ubicacion de la img
             .diskCacheStrategy(DiskCacheStrategy.ALL) //guarda el cache de la img
+            .placeholder(R.drawable.ic_access_time)
+            .error(R.drawable.ic_broken_image)
             .centerCrop() //se visualiza bien
             .into(layoutRoot.imgProduct) //donde se va a ver
 
